@@ -57,9 +57,9 @@ jobs:
 
   publish:
     needs: build
-    name: Publish lncr-core to GitHub Packages and create Release
+    name: publish lncr-core to GitHub Packages and create Release
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master' || github.event_name == 'release'
+    if: github.event.pull_request.merged == true || (github.event_name == 'push' && github.ref == 'refs/heads/master')
 
     steps:
     - name: Checkout repository
@@ -100,7 +100,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create Release
-      if: github.event_name == 'push' && github.ref == 'refs/heads/master' || github.event_name == 'release'
+      if: github.event.pull_request.merged == true || (github.ref == 'refs/heads/master' || github.event_name == 'release')
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -128,3 +128,4 @@ jobs:
         asset_path: core/target/core-${{ steps.get_version.outputs.version }}.jar
         asset_name: lncr-core-${{ steps.get_version.outputs.version }}.jar
         asset_content_type: application/java-archive
+
