@@ -83,7 +83,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create Release
-      if: github.event.pull_request.merged == true || (github.event_name == 'push' && github.ref == 'refs/heads/master')
+      if: github.event.pull_request.merged == true
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
