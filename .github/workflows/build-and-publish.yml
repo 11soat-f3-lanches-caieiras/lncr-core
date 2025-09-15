@@ -59,7 +59,7 @@ jobs:
 
   publish:
     needs: build
-    name: Publish lncr-core to GitHub Packages and create Release
+    name: publish lncr-core to GitHub Packages and create Release
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true || (github.event_name == 'push' && github.ref == 'refs/heads/master')
 
@@ -103,6 +103,8 @@ jobs:
     - name: Create Release
       if: github.event.pull_request.merged == true || (github.event_name == 'push' && github.ref == 'refs/heads/master')
       uses: softprops/action-gh-release@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: v${{ steps.get_version.outputs.version }}
         name: Release v${{ steps.get_version.outputs.version }}
@@ -119,3 +121,4 @@ jobs:
         files: |
           ./artifacts/core-*.jar
         token: ${{ secrets.GITHUB_TOKEN }}
+
