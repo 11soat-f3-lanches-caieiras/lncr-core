@@ -67,6 +67,10 @@ jobs:
         server-username: ${{ github.actor }}
         server-password: ${{ secrets.GITHUB_TOKEN }}
         settings-path: ${{ github.workspace }}
+
+    - name: Get version from pom.xml
+      id: get_version
+      run: |
         VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f core/pom.xml)
         echo "version=$VERSION" >> $GITHUB_OUTPUT
 
@@ -104,3 +108,4 @@ jobs:
         asset_path: core/target/core-${{ steps.get_version.outputs.version }}.jar
         asset_name: lncr-core-${{ steps.get_version.outputs.version }}.jar
         asset_content_type: application/java-archive
+
