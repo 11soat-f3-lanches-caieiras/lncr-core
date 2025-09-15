@@ -2,7 +2,7 @@ package br.com.tp.lncr.core.domain.oauth;
 
 import br.com.tp.lncr.core.commons.dtos.oauth.OauthCredentialsDTO;
 import br.com.tp.lncr.core.commons.dtos.oauth.OauthProfileConfig;
-import br.com.tp.lncr.core.commons.utils.TokenUtil;
+import br.com.tp.lncr.core.commons.utils.security.TokenEncoderUtils;
 
 public class OauthToken {
     private final String accessToken;
@@ -12,7 +12,7 @@ public class OauthToken {
     public OauthToken(OauthCredentialsDTO credentialsDto, OauthProfileConfig profileConfig) {
         this.tokenType = profileConfig.getTokenType();
         this.expiresIn = profileConfig.getExpireIn();
-        this.accessToken = TokenUtil.generateToken(credentialsDto, profileConfig);
+        this.accessToken = TokenEncoderUtils.generateToken(credentialsDto, profileConfig);
     }
 
     public String getAccessToken() {
