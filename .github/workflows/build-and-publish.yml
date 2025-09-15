@@ -55,7 +55,7 @@ jobs:
     needs: build
     name: publish lncr-core to GitHub Packages and create Release
     runs-on: ubuntu-latest
-    if: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
+    if: github.event.pull_request.merged == true || (github.event_name == 'push' && github.ref == 'refs/heads/master')
 
     steps:
     - name: Checkout repository
