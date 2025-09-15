@@ -81,6 +81,19 @@ jobs:
         VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f core/pom.xml)
         echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+    - name: Set up Maven settings.xml
+      run: |
+        mkdir -p $HOME/.m2
+        echo "<settings>
+          <servers>
+            <server>
+              <id>github</id>
+              <username>${{ github.actor }}</username>
+              <password>${{ secrets.GITHUB_TOKEN }}</password>
+            </server>
+          </servers>
+        </settings>" > $HOME/.m2/settings.xml
+
     - name: Publish to GitHub Packages
       run: mvn deploy -f core/pom.xml -DskipTests --settings ${{ github.workspace }}/settings.xml
       env:
