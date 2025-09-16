@@ -1,8 +1,8 @@
+#Commit 20250916-1
 name: Build and Publish Core JAR
-
 on:
   push:
-    branches: [ develop, master ]
+    branches: [ develop ]
   pull_request:
     branches: [ master ]
     types: [closed]
