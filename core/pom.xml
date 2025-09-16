@@ -11,9 +11,16 @@
         <repository>
             <id>github</id>
             <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/11soat-f3-lanches-caieiras/*</url>
+            <url>https://maven.pkg.github.com/11soat-f3-lanches-caieiras/lncr-core</url>
         </repository>
     </distributionManagement>
+    <repositories>
+        <repository>
+            <id>github</id>
+            <name>GitHub Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/11soat-f3-lanches-caieiras/lncr-core</url>
+        </repository>
+    </repositories>
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -48,14 +55,6 @@
             <version>2.19.2</version>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <id>github</id>
-            <name>GitHub OWNER Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/11soat-f3-lanches-caieiras/*</url>
-        </repository>
-
-    </repositories>
     <build>
         <plugins>
             <plugin>
@@ -101,5 +100,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
