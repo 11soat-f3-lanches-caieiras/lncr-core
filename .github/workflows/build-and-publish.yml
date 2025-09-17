@@ -89,7 +89,7 @@ jobs:
         mvn help:effective-settings -f core/pom.xml | grep -A 10 -B 10 github || true
 
     - name: Publish to GitHub Packages
-      run: mvn deploy -f core/pom.xml -DskipTests -X
+      run: mvn deploy -f core/pom.xml -DskipTests
       env:
         GITHUB_ACTOR: ${{ github.actor }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
