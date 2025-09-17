@@ -10,7 +10,7 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueReques
 public class SecretUtils {
 
     private static final String LNCR_AWS_SECRET_KEY = System.getProperty("LNCR_AWS_SECRET_KEY","LNCR_OAUTH_SECRET_KEY");
-    private static final String LNCR_AWS_SECRET_NAME = System.getProperty("LNCR_AWS_SECRET_NAME","lncr/oauth_secret_key");
+    private static final String LNCR_AWS_SECRET_NAME = System.getProperty("LNCR_AWS_SECRET_NAME","lncr-prd-sm");
 
 
     public static String getSecretValue(){
@@ -27,7 +27,6 @@ public class SecretUtils {
         }
         Logger.info("Using local secret key from environment variable");
         return localSecretKey;
-
     }
 
     private static String mapSecretValue(String secretString) {
