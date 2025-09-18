@@ -117,24 +117,68 @@ jobs:
         echo "HTTP Status: $HTTP_STATUS"
         
         if [ "$HTTP_STATUS" -eq 200 ]; then
+          # Contar quantas versões existem
+          VERSION_COUNT=$(echo $BODY | jq length 2>/dev/null || echo "0")
+          echo "Total versions found: $VERSION_COUNT"
+          
           EXISTING_VERSION_ID=$(echo $BODY | jq -r ".[] | select(.name == \"$VERSION\") | .id" 2>/dev/null || echo "")
           
           if [ ! -z "$EXISTING_VERSION_ID" ] && [ "$EXISTING_VERSION_ID" != "null" ]; then
             echo "Found existing version $VERSION with ID: $EXISTING_VERSION_ID"
-            echo "Deleting existing package version..."
             
-            DELETE_RESPONSE=$(curl -s -w "HTTP_STATUS:%{http_code}" -X DELETE \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/orgs/$OWNER/packages/maven/$PACKAGE_NAME/versions/$EXISTING_VERSION_ID")
-            
-            DELETE_STATUS=$(echo $DELETE_RESPONSE | sed -E 's/.*HTTP_STATUS:([0-9]{3})$/\1/')
-            
-            if [ "$DELETE_STATUS" -eq 204 ]; then
-              echo "Package version $VERSION deleted successfully"
+            # Se há apenas uma versão, deletar o pacote inteiro
+            if [ "$VERSION_COUNT" -eq 1 ]; then
+              echo "This is the only version. Deleting entire package..."
+              
+              DELETE_RESPONSE=$(curl -s -w "HTTP_STATUS:%{http_code}" -X DELETE \
+                -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Accept: application/vnd.github.v3+json" \
+                "https://api.github.com/orgs/$OWNER/packages/maven/$PACKAGE_NAME")
+              
+              DELETE_STATUS=$(echo $DELETE_RESPONSE | sed -E 's/.*HTTP_STATUS:([0-9]{3})$/\1/')
+              
+              if [ "$DELETE_STATUS" -eq 204 ]; then
+                echo "Package $PACKAGE_NAME deleted successfully"
+              else
+                echo "Failed to delete package. HTTP Status: $DELETE_STATUS"
+                echo "Response: $(echo $DELETE_RESPONSE | sed -E 's/HTTP_STATUS:[0-9]{3}$//')"
+              fi
             else
-              echo "Failed to delete package version. HTTP Status: $DELETE_STATUS"
-              echo "Response: $(echo $DELETE_RESPONSE | sed -E 's/HTTP_STATUS:[0-9]{3}$//')"
+              # Se há múltiplas versões, deletar apenas a versão específica
+              echo "Multiple versions exist. Deleting version $VERSION..."
+              
+              DELETE_RESPONSE=$(curl -s -w "HTTP_STATUS:%{http_code}" -X DELETE \
+                -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Accept: application/vnd.github.v3+json" \
+                "https://api.github.com/orgs/$OWNER/packages/maven/$PACKAGE_NAME/versions/$EXISTING_VERSION_ID")
+              
+              DELETE_STATUS=$(echo $DELETE_RESPONSE | sed -E 's/.*HTTP_STATUS:([0-9]{3})$/\1/')
+              
+              if [ "$DELETE_STATUS" -eq 204 ]; then
+                echo "Package version $VERSION deleted successfully"
+              else
+                echo "Failed to delete package version. HTTP Status: $DELETE_STATUS"
+                echo "Response: $(echo $DELETE_RESPONSE | sed -E 's/HTTP_STATUS:[0-9]{3}$//')"
+                
+                # Se falhar por ser a última versão, tentar deletar o pacote inteiro
+                if [[ $(echo $DELETE_RESPONSE | sed -E 's/HTTP_STATUS:[0-9]{3}$//' | grep -c "last version") -gt 0 ]]; then
+                  echo "Attempting to delete entire package as fallback..."
+                  
+                  FALLBACK_RESPONSE=$(curl -s -w "HTTP_STATUS:%{http_code}" -X DELETE \
+                    -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                    -H "Accept: application/vnd.github.v3+json" \
+                    "https://api.github.com/orgs/$OWNER/packages/maven/$PACKAGE_NAME")
+                  
+                  FALLBACK_STATUS=$(echo $FALLBACK_RESPONSE | sed -E 's/.*HTTP_STATUS:([0-9]{3})$/\1/')
+                  
+                  if [ "$FALLBACK_STATUS" -eq 204 ]; then
+                    echo "Package $PACKAGE_NAME deleted successfully as fallback"
+                  else
+                    echo "Fallback deletion also failed. HTTP Status: $FALLBACK_STATUS"
+                    echo "Continuing with deployment anyway..."
+                  fi
+                fi
+              fi
             fi
           else
             echo "No existing package version $VERSION found"
