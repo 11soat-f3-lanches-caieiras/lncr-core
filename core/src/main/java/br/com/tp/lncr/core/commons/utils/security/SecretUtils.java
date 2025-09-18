@@ -1,5 +1,6 @@
 package br.com.tp.lncr.core.commons.utils.security;
 
+import br.com.tp.lncr.core.commons.exceptions.OauthException;
 import br.com.tp.lncr.core.commons.utils.Logger;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,18 +16,22 @@ public class SecretUtils {
 
     public static String getSecretValue(){
         String localSecretKey = System.getenv(LNCR_AWS_SECRET_KEY);
-        if (localSecretKey == null || localSecretKey.isEmpty()) {
-            Logger.info("Fetching secret key from AWS Secrets Manager");
-            SecretsManagerClient client = SecretsManagerClient.builder()
-                    .region(Region.of("us-east-1"))
-                    .build();
-            GetSecretValueRequest request = GetSecretValueRequest.builder()
-                    .secretId(LNCR_AWS_SECRET_NAME)
-                    .build();
-            return mapSecretValue(client.getSecretValue(request).secretString());
+        try {
+            if (localSecretKey == null || localSecretKey.isEmpty()) {
+                Logger.info("Fetching secret key from AWS Secrets Manager");
+                SecretsManagerClient client = SecretsManagerClient.builder()
+                        .region(Region.of("us-east-1"))
+                        .build();
+                GetSecretValueRequest request = GetSecretValueRequest.builder()
+                        .secretId(LNCR_AWS_SECRET_NAME)
+                        .build();
+                return mapSecretValue(client.getSecretValue(request).secretString());
+            }
+            Logger.info("Using local secret key from environment variable");
+            return localSecretKey;
+        }catch (Exception e) {
+            throw new OauthException("Erro ao buscar secret key", 500);
         }
-        Logger.info("Using local secret key from environment variable");
-        return localSecretKey;
     }
 
     private static String mapSecretValue(String secretString) {
