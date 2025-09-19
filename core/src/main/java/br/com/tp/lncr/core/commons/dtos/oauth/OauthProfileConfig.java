@@ -1,7 +1,7 @@
 package br.com.tp.lncr.core.commons.dtos.oauth;
 
 import br.com.tp.lncr.core.commons.interfaces.oauth.OauthDatabase;
-import br.com.tp.lncr.core.commons.utils.security.SecretUtils;
+
 
 public class OauthProfileConfig implements OauthDatabase {
 
@@ -10,8 +10,8 @@ public class OauthProfileConfig implements OauthDatabase {
     private final String secretKey;
     private final OauthProfileDTO oauthProfile;
 
-    public OauthProfileConfig(Integer expireIn, OauthProfileDTO oauthProfile) {
-        this.secretKey = SecretUtils.getSecretValue();
+    public OauthProfileConfig(Integer expireIn, OauthProfileDTO oauthProfile,String secretKey) {
+        this.secretKey = secretKey;
         this.expireIn = expireIn;
         this.oauthProfile = oauthProfile;
     }
